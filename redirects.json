@@ -1,0 +1,10 @@
+{
+  "moves": [
+    {
+      "from": "/BabelFHIR-TS/",
+      "to": "https://babelfhir-ts.github.io/parity-report/",
+      "pages": [""],
+      "sitemaps": ["docs/sitemap.xml"]
+    }
+  ]
+}
