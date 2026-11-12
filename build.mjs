@@ -3,6 +3,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
+const OUT = join(ROOT, '_site');
 const { moves } = JSON.parse(readFileSync(join(ROOT, 'redirects.json'), 'utf8'));
 
 const escapeHtml = (s) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
@@ -68,20 +69,21 @@ async function sitemapPages(to, sitemap) {
     .map((loc) => loc.slice(to.length));
 }
 
+rmSync(OUT, { recursive: true, force: true });
+mkdirSync(OUT, { recursive: true });
+
 const written = [];
 for (const { from, to, pages = [], sitemaps = [] } of moves) {
   if (!/^\/[^/]+(\/[^/]+)*\/$/.test(from)) throw new Error(`"from" must be a non-root path ending in /: ${from}`);
   if (!to.endsWith('/')) throw new Error(`"to" must end in /: ${to}`);
-  rmSync(join(ROOT, from), { recursive: true, force: true });
   const discovered = await Promise.all(sitemaps.map((s) => sitemapPages(to, s)));
   for (const rel of new Set([...pages, ...discovered.flat()])) {
-    const file = join(ROOT, from, rel === '' || rel.endsWith('/') ? join(rel, 'index.html') : rel);
+    const file = join(OUT, from, rel === '' || rel.endsWith('/') ? join(rel, 'index.html') : rel);
     mkdirSync(dirname(file), { recursive: true });
     writeFileSync(file, redirectPage(to + rel));
     written.push(from + rel);
   }
 }
 
-writeFileSync(join(ROOT, '404.html'), notFoundPage);
-writeFileSync(join(ROOT, '.nojekyll'), '');
+writeFileSync(join(OUT, '404.html'), notFoundPage);
 console.log(`404.html + ${written.length} redirect pages:\n  ${written.join('\n  ')}`);
