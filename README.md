@@ -16,6 +16,6 @@ Non-browser clients get no redirect. Shields.io badge endpoints, for example, ha
 ## Adding a move
 
 1. Add an entry to `redirects.json`. `from` is the old path prefix, `to` is the new base URL, `pages` lists extra paths to give their own redirect page, and `sitemaps` are fetched relative to `to`.
-2. Run `node build.mjs` (Node 20+) and commit the generated files.
+2. Push to `main`. The `Deploy GitHub Pages` workflow runs `node build.mjs`, which writes the site to `_site/`, and deploys it. It also runs weekly to pick up new pages from the sitemaps.
 
-Pages is served straight from the `main` branch, so no Actions run is needed.
+To preview locally, run `node build.mjs` (Node 20+) and open `_site/`. The generated files are not committed.
